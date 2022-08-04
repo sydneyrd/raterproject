@@ -9,6 +9,7 @@ class Game(models.Model):
     number_of_players = models.IntegerField()
     time = models.IntegerField()
     age_rating = models.IntegerField()
+    categories = models.ManyToManyField("Category", through="GameCategories", related_name="categories")
 
     @property
     def average_rating(self):
