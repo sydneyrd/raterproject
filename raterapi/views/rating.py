@@ -4,42 +4,42 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 from raterapi.models import Game
 from raterapi.models import Gamer
-from raterapi.models import Review
+from raterapi.models import GameRating
 
-class ReviewView(ViewSet):
+class RatingView(ViewSet):
     """Level up game types view"""
 
-    def retrieve(self, request, pk):
-        """Handle GET requests for single game type
-        Returns:
-            Response -- JSON serialized game type"""
-        try:
-            review = Review.objects.get(pk=pk)
-            serializer = ReviewSerializer(review)
-            return Response(serializer.data)
-        except Review.DoesNotExist as ex:
-            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+    # def retrieve(self, request, pk):
+    #     """Handle GET requests for single game type
+    #     Returns:
+    #         Response -- JSON serialized game type"""
+    #     try:
+    #         review = Review.objects.get(pk=pk)
+    #         serializer = ReviewSerializer(review)
+    #         return Response(serializer.data)
+    #     except Review.DoesNotExist as ex:
+    #         return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
         
 
-    def list(self, request):
-        review = Review.objects.all() 
-        game = request.query_params.get('game', None)
-        if game is not None:
-            review = review.filter(game=game)
-        serializer = ReviewSerializer(review, many=True)
-        return Response(serializer.data)
+    # def list(self, request):
+    #     review = Review.objects.all() 
+    #     game = request.query_params.get('game', None)
+    #     if game is not None:
+    #         review = review.filter(game=game)
+    #     serializer = ReviewSerializer(review, many=True)
+    #     return Response(serializer.data)
 
     def create(self, request):
         """Handle POST operations"""
         gamer = Gamer.objects.get(user=request.auth.user)
         game = Game.objects.get(pk=request.data["game"])
 
-        review = Review.objects.create(
+        rating = GameRating.objects.create(
             game=game,
             gamer=gamer,
-            review=request.data["review"]
+            rating=request.data["rating"]
         )
-        serializer = ReviewSerializer(review)
+        serializer = RatingSerializer(rating)
         return Response(serializer.data)
 
     # def update(self, request, pk):
@@ -62,10 +62,10 @@ class ReviewView(ViewSet):
 
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class RatingSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
     """
     class Meta:
-        model = Review
-        fields = ('id', 'game', 'gamer', 'review')
+        model = GameRating
+        fields = ('id', 'game', 'gamer', 'rating')
         depth = 1

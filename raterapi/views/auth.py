@@ -41,7 +41,7 @@ def register_user(request):
     '''Handles the creation of a new gamer for authentication
 
     Method arguments:
-      request -- The full HTTP request object
+    request -- The full HTTP request object
     '''
 
     # Create a new user by invoking the `create_user` helper method

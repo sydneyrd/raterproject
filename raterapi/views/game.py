@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 from raterapi.models import Game
 from raterapi.models import Gamer
+from django.db.models import Q
 
 class GameView(ViewSet):
     """Level up game types view"""
@@ -26,9 +27,15 @@ class GameView(ViewSet):
             Response -- JSON serialized list of game types
         """
         games = Game.objects.all()
-        # game_type = request.query_params.get('type', None)
-        # if game_type is not None:
-        #     games = games.filter(game_type_id=game_type)
+        search_text = self.request.query_params.get('q', None)
+        if search_text is not None:
+            games = Game.objects.filter(
+                    Q(title__contains=search_text) |
+                    Q(description__contains=search_text) |
+                    Q(designer__contains=search_text))
+        order = self.request.query_params.get('orderby', None)
+        if order is not None:
+                games = Game.objects.order_by(order)
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data)
 
@@ -47,18 +54,18 @@ class GameView(ViewSet):
         serializer = GameSerializer(game)
         return Response(serializer.data)
 
-    # def update(self, request, pk):
-    #     """handle put"""
-    #     game = Game.objects.get(pk=pk)
-    #     game.title = request.data["title"]
-    #     game.maker = request.data["maker"]
-    #     game.number_of_players = request.data["number_of_players"]
-    #     game.skill_level = request.data["skill_level"]
-
-    #     game_type = GameType.objects.get(pk=request.data["game_type"])
-    #     game.game_type = game_type
-    #     game.save()
-    #     return Response(None, status=status.HTTP_204_NO_CONTENT)
+    def update(self, request, pk):
+        """handle put"""
+        game = Game.objects.get(pk=pk)
+        game.title = request.data["title"]
+        game.designer = request.data["designer"]
+        game.number_of_players = request.data["number_of_players"]
+        game.time = request.data["time"]
+        game.release_date = request.data["release_date"]
+        game.age_rating = request.data["age_rating"]
+        game.description = request.data["description"]
+        game.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     # def destroy(self, request, pk):
     #     game = Game.objects.get(pk=pk)
